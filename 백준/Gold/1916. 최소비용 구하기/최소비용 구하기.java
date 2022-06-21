@@ -1,69 +1,71 @@
+//골드5 다익스트라
+//06.16 스터디
+//26퍼-시간초과: scanner+dij(priorityque)
+//scanner-> br로 바꿔도 똑같음
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
-//출발 도시에서 도착 도시까지의 최소 비용을 구하는거면.. 다익스트라?
 public class Main {
-	public static class Bus implements Comparable<Bus>{
-		int node;
+	static class Node implements Comparable<Node>{
+		int to;
 		int cost;
-		Bus(int node, int cost){
-			this.node = node;
-			this.cost = cost;
+		Node(int to, int cost){
+			this.to=to;
+			this.cost=cost;
 		}
 		@Override
-		public int compareTo(Bus o) {
+		public int compareTo(Node o) {
 			if(this.cost < o.cost) return -1;
-			else return 1;
+            else return 1;
 		}
-		
 	}
-	static int N, M;
-	static ArrayList<Bus>[] adjList;
-	static boolean[] visited;
-	static int[] dist;
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		N = sc.nextInt(); // 도시의 개수
-		M = sc.nextInt(); // 버스의 개수
-		
-		adjList = new ArrayList[N+1];
-		for(int i = 0; i<N+1; i++) adjList[i] = new ArrayList<>();
-		for(int i = 0; i<M; i++) {
-			int st = sc.nextInt();
-			int ed = sc.nextInt();
-			int val = sc.nextInt();
-			adjList[st].add(new Bus(ed, val));
+	public static void main(String[] args) throws IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st;
+		int n = Integer.parseInt(br.readLine());
+		int m = Integer.parseInt(br.readLine());
+		ArrayList<Node>[] list = new ArrayList[n+1];
+		for(int i=0; i<n+1; i++)
+			list[i]=new ArrayList<>();
+		for(int i=0; i<m; i++) {
+			st = new StringTokenizer(br.readLine());
+			int from = Integer.parseInt(st.nextToken());
+			int to = Integer.parseInt(st.nextToken());
+			int cost = Integer.parseInt(st.nextToken());
+			list[from].add(new Node(to, cost));
 		}
+		st = new StringTokenizer(br.readLine());
+		int start = Integer.parseInt(st.nextToken());
+		int end = Integer.parseInt(st.nextToken());
 		
-		visited = new boolean[N+1];
-		dist = new int[N+1];
-		for(int i = 0; i<N+1; i++) dist[i] = Integer.MAX_VALUE;
+		//다익스트라-우선순위큐
+		boolean [] visited = new boolean [n+1];
 		
-		int st = sc.nextInt();
-		int ed = sc.nextInt();
-		dijkstra(st);
-		System.out.println(dist[ed]);
+		int [] res = new int [n+1];
+		Arrays.fill(res, Integer.MAX_VALUE);
 		
-		sc.close();
-	}
-	public static void dijkstra(int st) {
-		PriorityQueue<Bus> pq = new PriorityQueue<>();
-		pq.add(new Bus(st, 0));
-		dist[st] = 0;
+		PriorityQueue<Node> pq = new PriorityQueue<>();
+		pq.add(new Node(start, 0));
+		res[start]=0;
 		
 		while(!pq.isEmpty()) {
-			Bus cur = pq.poll();
-			if(visited[cur.node]) continue;
-			visited[cur.node] = true;
+			Node cur = pq.poll();
+            if(visited[cur.to]) continue;
+			visited[cur.to]=true;
 			
-			for(Bus bus : adjList[cur.node]) {
-				if(!visited[bus.node] && dist[bus.node] > dist[cur.node] + bus.cost) {
-					dist[bus.node] = dist[cur.node] + bus.cost;
-					pq.add(new Bus(bus.node, dist[bus.node]));
-				}
-			}
+			for(Node node: list[cur.to]) {
+				if(visited[node.to]) continue;
+				if(res[node.to]>res[cur.to]+node.cost)
+					res[node.to]=res[cur.to]+node.cost;
+				pq.add(new Node(node.to, res[node.to]));
+			}			
 		}
+		System.out.println(res[end]);
 	}
 }
