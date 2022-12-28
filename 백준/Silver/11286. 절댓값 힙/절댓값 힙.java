@@ -1,30 +1,28 @@
-import java.util.Comparator;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.PriorityQueue;
-import java.util.Scanner;
 
 public class Main {
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		StringBuilder sb = new StringBuilder();
-		int N = sc.nextInt();
-		PriorityQueue<Integer> pq = new PriorityQueue<>(new Comparator<Integer>() {
-			@Override
-			public int compare(Integer o1, Integer o2) {
-				if(Math.abs(o1) > Math.abs(o2)) return Math.abs(o1) - Math.abs(o2);
-				else if( Math.abs(o1) == Math.abs(o2)) return o1-o2;
-				else return -1;
-			}});
-		
-		for(int i = 0; i<N; i++) {
-			int a = sc.nextInt();
-			if(a == 0) {
-				if(pq.isEmpty()) sb.append("0\n");
-				else sb.append(pq.poll()+"\n");
-			}
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int N = Integer.parseInt(br.readLine());
+		PriorityQueue<Integer> pq = new PriorityQueue<>((o1,o2) -> {
+			int first_abs = Math.abs(o1);
+			int second_abs = Math.abs(o2);
+			if(first_abs == second_abs)
+				return o1 > o2 ? 1 : -1;
 			else
-				pq.add(a);
+				return first_abs - second_abs;
+		});
+		for(int i = 0; i<N; i++) {
+			int request = Integer.parseInt(br.readLine());
+			if(request == 0) {
+				if(pq.isEmpty()) System.out.println("0");
+				else System.out.println(pq.poll());
+			}
+			else pq.add(request);
 		}
-		System.out.print(sb.toString());
-		sc.close();
+		
 	}
 }
