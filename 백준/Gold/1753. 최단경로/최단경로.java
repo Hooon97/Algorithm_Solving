@@ -1,78 +1,69 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.PriorityQueue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
 public class Main {
-	public static class Edge implements Comparable<Edge>{
-		int ed;
-		int cost;
-		Edge(int ed, int cost){
-			this.ed = ed;
-			this.cost = cost;
+	static int V,E,K;
+	static int[] distance;
+	static boolean[] visited;
+	static ArrayList<Edge>[] list;
+	static PriorityQueue<Edge> pq = new PriorityQueue<>();
+	public static void main(String[] args) throws Exception {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringBuilder sb = new StringBuilder();
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		V = Integer.parseInt(st.nextToken()); //정점의 개수
+		E = Integer.parseInt(st.nextToken()); //간선의 개수
+		K = Integer.parseInt(br.readLine()); //시작 정점의 번호
+		distance = new int[V+1];
+		visited = new boolean[V+1];
+		list = new ArrayList[V+1];
+		for(int i = 1; i<= V; i++) list[i] = new ArrayList<Edge>();
+		for(int i = 0; i<= V; i++) distance[i] = Integer.MAX_VALUE;
+		for(int i = 0; i< E; i++) {
+			st = new StringTokenizer(br.readLine());
+			int u = Integer.parseInt(st.nextToken());
+			int v = Integer.parseInt(st.nextToken());
+			int w = Integer.parseInt(st.nextToken());
+			list[u].add(new Edge(v,w));
 		}
-		@Override
-		public int compareTo(Edge o) {
-			if(this.cost < o.cost) return -1;
-			return 1;
-		}
-		
-	}
-	static ArrayList<Edge>[] Node;
-	static int[] dist;
-	static Scanner sc;
-	static final int INF = Integer.MAX_VALUE;
-	public static void main(String[] args) {
-		sc = new Scanner(System.in);
-		int V = sc.nextInt(); // 노드의 수
-		int E = sc.nextInt(); // 간선의 수
-		int st = sc.nextInt();
-		Node = new ArrayList[V+1];
-		dist = new int[V+1];
-		for(int i = 0; i<V+1; i++) Node[i] = new ArrayList<>();
-		input(E);
-		dijkstra(st, V);
-		
-		for(int i = 1; i<=V; i++) {
-			if(dist[i] != INF) System.out.println(dist[i]);
-			else System.out.println("INF");
-		}
-		
-		sc.close();
-	}
-	public static void input(int E) {
-		for(int i = 0; i<E; i++) {
-			int st = sc.nextInt();
-			int ed = sc.nextInt();
-			int cost = sc.nextInt();
-			
-//			for(int j = 0; j<Node[st].size(); j++)
-//				if(Node[st].get(j).ed == ed) 
-//					if(Node[st].get(j).cost < cost) continue;
-			Node[st].add(new Edge(ed, cost));
-		}
-	}
-	
-	public static void dijkstra(int st, int V) {
-		boolean[] visited = new boolean[V+1];
-		
-		Arrays.fill(dist, INF);
-		dist[st] = 0;
-		
-		PriorityQueue<Edge> pq = new PriorityQueue<>();
-		pq.add(new Edge(st, 0));
+		pq.add(new Edge(K,0));
+		distance[K] = 0;
 		while(!pq.isEmpty()) {
 			Edge cur = pq.poll();
-			if(visited[cur.ed]) continue;
-			for(Edge e : Node[cur.ed]) {
-				int tmp = dist[cur.ed] + e.cost;
-				if(!visited[e.ed] && dist[e.ed] > tmp) {
-					dist[e.ed] = tmp;
-					pq.add(new Edge(e.ed, dist[e.ed]));
+			int c_v = cur.vertex;
+			if(visited[c_v]) continue;
+			visited[c_v] = true;
+			for(int i = 0; i<list[c_v].size(); i++) {
+				Edge tmp = list[c_v].get(i);
+				int next = tmp.vertex;
+				int val = tmp.val;
+				if(distance[next] > distance[c_v] + val) {
+					distance[next] = val + distance[c_v];
+					pq.add(new Edge(next, distance[next]));
 				}
 			}
-		
 		}
-		
+		for(int i = 1; i<=V; i++) {
+			if(visited[i]) sb.append(distance[i]+"\n");
+			else sb.append("INF\n");
+		}
+		System.out.print(sb.toString());
+	}
+}
+
+class Edge implements Comparable<Edge>{
+	int vertex;
+	int val;
+	Edge(int vertext, int val){
+		this.vertex = vertext;
+		this.val = val;
+	}
+	@Override
+	public int compareTo(Edge e) {
+		if(this.val > e.val) return 1;
+		else return -1;
 	}
 }
