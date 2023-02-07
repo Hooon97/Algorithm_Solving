@@ -1,28 +1,34 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
-public class Main {
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		int N = sc.nextInt(); // 숫자의 개수
-		int M = sc.nextInt(); // 숫자의 합
-		int[] nums = new int[N]; //입력된 숫자들
-		int ans = 0;
-		for(int i = 0; i<N; i++) nums[i] = sc.nextInt();
-		Arrays.sort(nums); //미정렬시 모든 경우의 수 탐색해야됨
+public class Main{
+	public static void main(String[] args) throws Exception{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int N = Integer.valueOf(br.readLine().trim());
+		int M = Integer.valueOf(br.readLine().trim());
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int[] nums = new int[N];
+		for(int i = 0; i<N; i++) nums[i] = Integer.valueOf(st.nextToken());
 		
-		for(int i = 0; i<N-1; i++) {
-			if(nums[i] > M) break;
-			for(int j = i+1; j<N; j++) {
-				if(nums[i]+nums[j] == M) {
-					ans++;
-					break;
-				}
-				else if(nums[i]+nums[j] > M) break;
+		//투포인터를 적용하려면 정렬이 되어있어야 함
+		Arrays.sort(nums);
+		int start = 0;
+		int end = N-1;
+		int ans = 0;
+		while(start < end) {
+			long sum = nums[start] + nums[end];
+			if(sum == M) {
+				ans++;
+				end--;
+				start++;
 			}
+			else if(sum < M) start++;
+			else if(sum > M) end--;
 		}
 		
 		System.out.print(ans);
-		sc.close();
 	}
 }
