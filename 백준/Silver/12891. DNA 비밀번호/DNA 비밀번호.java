@@ -1,82 +1,71 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.StringTokenizer;
 
-public class Main {
-	static char[] dnaArray;
-	static int[] conWindow;
-	static int[] con;
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		StringBuilder sb = new StringBuilder();
-		int S = sc.nextInt(); // 문자열의 길이
-		int P = sc.nextInt(); // 부분문자열의 길이
-		String dna = sc.next();
-		dnaArray = dna.toCharArray();
-		con = new int[4]; //A C G T의 조건 개수
-		conWindow = new int[4]; //슬라이딩 윈도우로 체크할 조건 개수
-		for(int i = 0; i<4; i++) con[i] = sc.nextInt();
-		int ans = 0;
-		
-		firstEdit(P);
-		for(int i = P; i<S; i++) {
-			if(conCheck()) {
-				ans++;
-			}
-			plusEdit(dnaArray[i]);
-			minusEdit(dnaArray[i-P]);
-		}
-		if(conCheck()) ans++;
-		sb.append(ans);
-		System.out.print(sb.toString());
-		sc.close();
-	}
-	
-	static void firstEdit(int P) {
+public class Main{
+	public static void main(String[] args) throws Exception{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int N = Integer.valueOf(st.nextToken()); // 길이
+		int P = Integer.valueOf(st.nextToken()); // 비밀번호 길이
+		String DNA = br.readLine();
+		st = new StringTokenizer(br.readLine());
+		int[] standard = new int[4]; //A C G T순서
+		int[] myCheck = new int[4];
+		for(int i = 0; i<4; i++) standard[i] = Integer.valueOf(st.nextToken());
 		for(int i = 0; i<P; i++) {
-			switch(dnaArray[i]) {
-			case 'A' : conWindow[0]++;
+			switch(DNA.charAt(i)) {
+			case 'A' : myCheck[0]++;
 			break;
-			case 'C' : conWindow[1]++;
+			case 'C' : myCheck[1]++;
 			break;
-			case 'G' : conWindow[2]++;
+			case 'G' : myCheck[2]++;
 			break;
-			case 'T' : conWindow[3]++;
+			case 'T' : myCheck[3]++;
 			break;
 			}
 		}
-	}
-	
-	static void plusEdit(char dnaPiece) {
-		switch(dnaPiece) {
-		case 'A' : conWindow[0]++;
-		break;
-		case 'C' : conWindow[1]++;
-		break;
-		case 'G' : conWindow[2]++;
-		break;
-		case 'T' : conWindow[3]++;
-		break;
+		int ans = 0;
+		if(possiblePW(standard, myCheck)) ans++;
+		
+		for(int i = P; i<N; i++) {
+			
+			switch(DNA.charAt(i)) {
+			case 'A' : myCheck[0]++;
+			break;
+			case 'C' : myCheck[1]++;
+			break;
+			case 'G' : myCheck[2]++;
+			break;
+			case 'T' : myCheck[3]++;
+			break;
+			}
+			
+			switch(DNA.charAt(i-P)) {
+			case 'A' : myCheck[0]--;
+			break;
+			case 'C' : myCheck[1]--;
+			break;
+			case 'G' : myCheck[2]--;
+			break;
+			case 'T' : myCheck[3]--;
+			break;
+			}
+			
+			if(possiblePW(standard, myCheck)) ans++;
 		}
+		System.out.print(ans);
 	}
 	
-	static void minusEdit(char dnaPiece) {
-		switch(dnaPiece) {
-		case 'A' : conWindow[0]--;
-		break;
-		case 'C' : conWindow[1]--;
-		break;
-		case 'G' : conWindow[2]--;
-		break;
-		case 'T' : conWindow[3]--;
-		break;
-		}
-	}
-	
-	static boolean conCheck() {
+	public static boolean possiblePW(int[] standard, int[] myCheck) {
 		for(int i = 0; i<4; i++) {
-			if(con[i] > conWindow[i]) return false;
+			if(standard[i] > myCheck[i]) return false;
 		}
 		return true;
+		
 	}
-	
 }
