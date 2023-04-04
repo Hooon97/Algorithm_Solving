@@ -1,73 +1,72 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 
-public class Main {
-	static int N, M, cnt;
-	static boolean[] visitDfs;
-	static LinkedList<Integer> dfs; 
-	static LinkedList<Integer> bfs;
-	static LinkedList<Integer>[] graph;
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
-		StringBuilder sb = new StringBuilder();
-		N = sc.nextInt();
-		M = sc.nextInt();
-		int start = sc.nextInt();
-		graph = new LinkedList[N+1];
-		dfs = new LinkedList<>();
-		visitDfs = new boolean[N+1];
-		bfs = new LinkedList<>();
-		for(int i = 1; i<=N; i++)
-			graph[i] = new LinkedList<>();
-		for(int i = 0; i<M; i++) {
-			int a = sc.nextInt();
-			int b = sc.nextInt();
-			graph[a].add(b);
-			graph[b].add(a);
-		}
-		for(int i = 1; i<=N; i++)
-			Collections.sort(graph[i]);
-		cnt = 0;
-		dfs(start);
-		bfs(start);
-		for(int i : dfs)
-			sb.append(i+" ");
-		sb.append("\n");
-		for(int i : bfs)
-			sb.append(i+" ");	
-		System.out.println(sb.toString());
-		sc.close();
-	}
-	static void dfs(int Node) {
-		if(cnt >= N)
-			return;
-		dfs.add(Node);
-		visitDfs[Node] = true;
-		for(int i : graph[Node]) {
-			if(visitDfs[i]) continue;
-			visitDfs[i] = true;
-			dfs(i);
+public class Main{
+	static ArrayList<Integer>[] A;
+	static boolean[] visit;
+	static StringBuilder sb;
+	public static void main(String[] args) throws Exception{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		sb = new StringBuilder();
+		int N = Integer.valueOf(st.nextToken());
+		int M = Integer.valueOf(st.nextToken());
+		int V = Integer.valueOf(st.nextToken());
+		A = new ArrayList[N+1];
+		visit = new boolean[N+1];
+		for(int i = 1; i<N+1; i++) {
+			A[i] = new ArrayList<>();
 		}
 		
+		for(int i = 0; i<M; i++) {
+			st = new StringTokenizer(br.readLine());
+			int start = Integer.valueOf(st.nextToken());
+			int end = Integer.valueOf(st.nextToken());
+			A[start].add(end);
+			A[end].add(start);
+		}
+		
+		for(int i = 1; i<N+1; i++) {
+			Collections.sort(A[i]);
+		}
+		
+		DFS(V);
+		sb.append("\n");
+		Arrays.fill(visit, false);
+		BFS(V);
+		
+		System.out.print(sb.toString());
 	}
-	static void bfs(int Node) {
+	private static void DFS(int v) {
+		if(visit[v]) return;
+		visit[v] = true;
+		sb.append(v+" ");
+		for(int n : A[v]) {
+			if(visit[n]) continue;
+			DFS(n);
+		}
+	}
+	private static void BFS(int v) {
 		Queue<Integer> q = new LinkedList<>();
-		boolean[] visited = new boolean[N+1];
-		q.add(Node);
-		visited[Node] = true;
-		bfs.add(Node);
+		q.add(v);
+		visit[v] = true;
+		sb.append(v+" ");
+		
 		while(!q.isEmpty()) {
 			int cur = q.poll();
-			for(int i : graph[cur]) {
-				if(visited[i]) continue;
-				bfs.add(i);
-				visited[i] = true;
-				q.add(i);
+			for(int n : A[cur]) {
+				if(visit[n]) continue;
+				visit[n] = true;
+				sb.append(n+" ");
+				q.add(n);
 			}
 		}
 	}
-	
 }
+
