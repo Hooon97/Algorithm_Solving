@@ -1,59 +1,50 @@
-import java.util.Scanner;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.StringTokenizer;
 
-public class Main {
-
-	static int R, C, K;
+public class Main{
+	static int N, M, D, ans;
 	static char[][] map;
-	static int[][] visited;
-	static int answer;
-	
-	static int[] moveR = {1, -1, 0, 0};
-	static int[] moveC = {0, 0, 1, -1};
-	
-	public static void main(String[] args) {
-		Scanner sc = new Scanner(System.in);
+	static int[] dr = {-1,1,0,0};
+	static int[] dc = {0,0,-1,1};
+	public static void main(String[] args) throws Exception{
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		N = Integer.valueOf(st.nextToken());
+		M = Integer.valueOf(st.nextToken());
+		D = Integer.valueOf(st.nextToken());
+		map = new char[N][M];
+		ans = 0;
+		boolean[][] visit = new boolean[N][M];
 		
-		R = sc.nextInt();
-		C = sc.nextInt();
-		K = sc.nextInt();
-		map = new char[R][C];
-		visited = new int[R][C];
+		for(int i = 0; i<N; i++)
+			map[i] = br.readLine().trim().toCharArray();
 		
-		for(int i=0; i<R; i++) {
-			String s = sc.next();
-			for(int j=0; j<C; j++) {
-				map[i][j] = s.charAt(j);
-			}
-		}
-		
-		visited[R-1][0] = 1;
-		dfs(R-1, 0, 1);
-		
-		System.out.println(answer);
-
+		visit[N-1][0] = true;
+		Dfs(N-1, 0, 1, visit);
+		System.out.print(ans);
 	}
-	
-	static void dfs(int r, int c, int moved) {
-		//도착 
-		if(r == 0 && c == C-1) {
-			if(moved == K)
-				answer++;
+	private static void Dfs(int i, int j, int depth, boolean[][] visit) {
+		if(depth == D && i == 0 && j == M-1) {
+			ans++;
 			return;
 		}
+		if(depth >= D) return;
 		
-		for(int i=0; i<4; i++) {
-			int nextR = r + moveR[i];
-			int nextC = c + moveC[i];
-			if(nextR<0 || nextR>=R || nextC<0 ||nextC>=C)
-				continue;
-			if(visited[nextR][nextC] == 1 || map[nextR][nextC] == 'T')
-				continue;
-			visited[nextR][nextC] = 1;
-			dfs(nextR, nextC, moved+1);
-			visited[nextR][nextC] = 0;
-			
+		for(int p = 0; p<4; p++) {
+			int drs = dr[p] + i;
+			int dcs = dc[p] + j;
+			if(drs < 0 || drs > N-1 || dcs < 0 || dcs > M-1) continue;
+			if(visit[drs][dcs] || map[drs][dcs] == 'T') continue;
+			visit[drs][dcs] = true;
+			Dfs(drs,dcs, depth+1, visit);
+			visit[drs][dcs] = false;
 		}
-		
 	}
-
 }
+
