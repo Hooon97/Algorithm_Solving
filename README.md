@@ -15,5 +15,6 @@ This is a auto push repository for Baekjoon Online Judge created with [BaekjoonH
 | 2024/05/19 | BFS | 3 | Programmers | 가장 먼 노드 | O |  |
 | 2024/05/19 | Queue | 2 | Programmers | 수식 최대화 | O |  |
 | 2024/05/19 | Implementation | 2 | Programmers | 행렬 테두리 회전하기 | O | there should be more clean code |
+| 2024/05/20 | BFS | 2 | Programmers | 미로 탈출 | O | visit 배열 업데이트 위치 잘못 잡아서 오래 걸림 |
 | | | | | | | |
 
