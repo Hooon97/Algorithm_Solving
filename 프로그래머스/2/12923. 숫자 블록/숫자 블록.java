@@ -16,7 +16,7 @@ class Solution {
         
         int max = 1;
         
-        for(int i = 2; i<= Math.sqrt(num); i++){
+        for(int i = 2; i<= Math.sqrt(num) && i<=MAX; i++){
             if(num % i == 0){
                 if(num / i <= MAX) return num / i;
                 if(i<=MAX) max = Math.max(max, i);
