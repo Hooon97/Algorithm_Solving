@@ -1,4 +1,11 @@
 class Solution {
+    /*
+        t = 5 | 6 3 2 = 10
+        t = 6 | 7 4 3 = 14
+        t = 7 | 8 4 3 = 15
+        
+        시간과 해당 시간동안 할당될 수 있는 일의 양은 선형적으로 증가하지 않는다.
+    */
     public int solution(int n, int[] cores) {
         int answer = 0;
         int time = 0;
@@ -32,6 +39,7 @@ class Solution {
         
         return answer;
     }
+    // 해당 시간동안 수행할 수 있는 일의 양
     public int calDoneWork(int[] cores, int time){
         int result = 0;
         for(int core : cores) result += time/core+1;
