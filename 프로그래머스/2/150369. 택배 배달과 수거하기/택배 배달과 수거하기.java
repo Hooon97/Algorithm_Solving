@@ -1,55 +1,64 @@
 import java.util.*;
 
 class Solution {
-    public long solution(int capacity, int n, int[] deliveries, int[] pickups) {
+    public long solution(int cap, int n, int[] deliveries, int[] pickups) {
         long answer = 0;
+    
+        int deliverIdx = n-1;
+        int pickupsIdx = n-1;
         
-        /*
-            1. delivery만 생각한다면, 뒤에서부터 최대 용달로 배달하면된다.
-            2. 트럭이 가야하는 최장 거리를 가면, 다시 원점으로 복귀해야 한다.
-            3. 가장 먼 delivery를 먼저 배달하고, 해당 지점까지 배달이 되면 수거를 탐색한다.
-            4. 배달과 수거 배열은 투포인터로 탐색한다.
-        */
-        
-        int dIdx = deliveries.length-1;
-        int pIdx = pickups.length-1;
-        
-        int cap = capacity;
-        while(dIdx >= 0 || pIdx >= 0){
-            dIdx = findNotZero(deliveries, dIdx);
-            pIdx = findNotZero(pickups, pIdx);
-            answer += (Math.max(dIdx, pIdx)+1)*2;
+        while(deliverIdx >= 0 || pickupsIdx >= 0){
+            deliverIdx = findNextIdx(deliveries, deliverIdx);
+            pickupsIdx = findNextIdx(pickups, pickupsIdx);
             
-            cap = capacity;
-            while(dIdx >= 0 && cap > 0){
-                if(deliveries[dIdx] <= cap){
-                    cap -= deliveries[dIdx];
-                    deliveries[dIdx] = 0;
-                    dIdx = findNotZero(deliveries, dIdx);
+            int start = Math.max(deliverIdx, pickupsIdx);
+            answer += (start+1)*2;
+            int delCap = cap;
+            int picCap = cap;
+            
+            int tmpDelIdx = deliverIdx;
+            while(delCap > 0 && tmpDelIdx >= 0){
+                if(deliveries[tmpDelIdx] > 0){
+                    if(deliveries[tmpDelIdx] <= delCap){
+                        delCap -= deliveries[tmpDelIdx];
+                        deliveries[tmpDelIdx] = 0;
+                    } else{
+                        deliveries[tmpDelIdx] -= delCap;
+                        delCap = 0;
+                    }
                 } else{
-                    deliveries[dIdx] -= cap;
-                    cap = 0;
+                    tmpDelIdx--;
                 }
+                
+                deliverIdx = tmpDelIdx;
             }
             
-            cap = capacity;
-            while(pIdx >= 0 && cap > 0){
-                if(pickups[pIdx] <= cap){
-                    cap -= pickups[pIdx];
-                    pickups[pIdx] = 0;
-                    pIdx = findNotZero(pickups, pIdx);
-                } else {
-                    pickups[pIdx] -= cap;
-                    cap = 0;
+            int tmpPicIdx = pickupsIdx;
+            while(picCap > 0 && tmpPicIdx >= 0){
+                if(pickups[tmpPicIdx] > 0){
+                    if(pickups[tmpPicIdx] <= picCap){
+                        picCap -= pickups[tmpPicIdx];
+                        pickups[tmpPicIdx] = 0;
+                    } else{
+                        pickups[tmpPicIdx] -= picCap;
+                        picCap = 0;
+                    }
+                } else{
+                    tmpPicIdx--;
                 }
+                
+                pickupsIdx = tmpPicIdx;
             }
         }
+        
+        
+        
         return answer;
     }
     
-    public int findNotZero(int[] arr, int start){
-        for(; start >= 0; start--){
-            if(arr[start] > 0) return start;
+    public int findNextIdx(int[] arr, int idx){
+        for(int i = idx; i>=0; i--){
+            if(arr[i] > 0) return i;
         }
         
         return -1;
