@@ -1,122 +1,128 @@
 import java.util.*;
 
 class Solution {
-    String[][] excel;
-    int[][] merge;
-    LinkedList<int[]>[] indexList;
-    String EMPTY;
-    public String[] solution(String[] commands) {
-        String[] answer = {};
-        excel = new String[50][50];
-        merge = new int[50][50];
-        indexList = new LinkedList[2500];
-        EMPTY = "EMPTY";
+    /*
+        구현 문제
+        1. R x C 2차원 배열을 두 개 만든다. String[R][C][2];
+        2. ..0은 cell의 값을 의미한다.
+        3. ..1은 병합된 cell을 의미한다.
+        4. 배열의 초기 값은 EMPTY 이다.
         
-        int idx = 0;
+        UPDATE, UMERGE는 배열을 전체 탐색하여 찾는다.
+        -> Map으로 위치를 관리하는 방식으로 최적화가 가능하다.
+    */
+    String[][][] EXCEL;
+    static final String EMPTY = "EMPTY";
+    public String[] solution(String[] commands) {
+        List<String> answerList = new ArrayList<>();
+        EXCEL = new String[50][50][2];
+        // init
         for(int i = 0; i<50; i++){
             for(int j = 0; j<50; j++){
-                excel[i][j] = EMPTY;
-                merge[i][j] = idx;
-                indexList[idx] = new LinkedList<>();
-                indexList[idx++].add(new int[]{i, j});
+                EXCEL[i][j][0] = EMPTY;
+                EXCEL[i][j][1] = i+"/"+j;
             }
         }
         
-        List<String> ansList = new ArrayList<>();
         for(String command : commands){
-            String[] comArr = command.split(" ");
-            if(comArr[0].equals("PRINT")) ansList.add(printCommand(comArr));
-            else doCommand(comArr);
+            String[] coms = command.split(" ");
+            switch(coms[0]){
+                case "UPDATE" : updateExcel(coms);
+                    break;
+                case "MERGE" : mergeExcel(coms[1], coms[2], coms[3], coms[4]);
+                    break;
+                case "UNMERGE" : unmergeExcel(coms[1], coms[2]);
+                    break;
+                case "PRINT" : printExcel(answerList, coms[1], coms[2]);
+                    break;
+            }
         }
         
-        answer = new String[ansList.size()];
-        for(int i = 0; i<ansList.size(); i++) answer[i] = ansList.get(i);
-        
-        return answer;
+        return answerList.toArray( new String[answerList.size()] );
     }
     
-    private String printCommand(String[] comArr){
-        int r = Integer.valueOf(comArr[1])-1;
-        int c = Integer.valueOf(comArr[2])-1;
-        return excel[r][c];
+    public void printExcel(List<String> answer, String row, String col){
+        int r = Integer.valueOf(row) - 1 ;
+        int c = Integer.valueOf(col) - 1 ;
+        answer.add(EXCEL[r][c][0]);
     }
     
-    private void doCommand(String[] comArr){
-        if(comArr[0].equals("UPDATE")){
-            if(comArr.length == 4){
-                //지정 업데이트
-                int r = Integer.valueOf(comArr[1])-1;
-                int c = Integer.valueOf(comArr[2])-1;
-                int mergeIdx = merge[r][c];
-                
-                for(int[] spot : indexList[mergeIdx]){
-                    excel[spot[0]][spot[1]] = comArr[3];
+    public void unmergeExcel(String row, String col){
+        int r = Integer.valueOf(row) - 1;
+        int c = Integer.valueOf(col) - 1;
+        String value = EXCEL[r][c][0];
+        String idx = EXCEL[r][c][1];
+
+        for(int i = 0; i<50; i++){
+            for(int j = 0; j<50; j++){
+                if(EXCEL[i][j][1].equals(idx)){
+                    EXCEL[i][j][1] = i+"/"+j;
+                    EXCEL[i][j][0] = EMPTY;
                 }
-            } else{
-                //전체 업데이트
-                if(comArr[1].equals(comArr[2])) return;
-                for(int i = 0; i<50; i++){
-                    for(int j = 0; j<50; j++){
-                        if(excel[i][j].equals(comArr[1])) excel[i][j] = comArr[2];
+            }
+        }
+        
+        EXCEL[r][c][1] = r+"/"+c;
+        EXCEL[r][c][0] = value;
+    }
+    
+    public void mergeExcel(String row1, String col1, String row2, String col2){
+        int r1 = Integer.valueOf(row1) - 1;
+        int c1 = Integer.valueOf(col1) - 1;
+        int r2 = Integer.valueOf(row2) - 1;
+        int c2 = Integer.valueOf(col2) - 1;
+        if(r1 == r2 && c1 == c2) return;
+        String idx1 = EXCEL[r1][c1][1];
+        String idx2 = EXCEL[r2][c2][1];
+        if(idx1.equals(idx2)) return;
+        
+        String value = "";
+        if(EXCEL[r1][c1][0].equals(EMPTY)){
+            value = EXCEL[r2][c2][0];
+        } else{
+            value = EXCEL[r1][c1][0];
+        }
+        
+        
+        for(int i = 0; i<50; i++){
+            for(int j = 0; j<50; j++){
+                if(EXCEL[i][j][1].equals(idx2) || EXCEL[i][j][1].equals(idx1)){
+                    EXCEL[i][j][1] = idx1;
+                    EXCEL[i][j][0] = value;
+                }
+            }
+        }
+    }
+    
+    public void updateExcel(String[] command){
+        if(command.length == 4){
+            String row = command[1];
+            String col = command[2];
+            String value = command[3];
+            int r = Integer.valueOf(row) - 1;
+            int c = Integer.valueOf(col) - 1;
+            String idx = EXCEL[r][c][1];
+
+            for(int i = 0; i<50; i++){
+                for(int j = 0; j<50; j++){
+                    if(EXCEL[i][j][1].equals(idx)){
+                        EXCEL[i][j][0] = value;
                     }
-                }   
-            }
-        } else if(comArr[0].equals("MERGE")){
-            int r1 = Integer.valueOf(comArr[1])-1;
-            int c1 = Integer.valueOf(comArr[2])-1;
-            int r2 = Integer.valueOf(comArr[3])-1;
-            int c2 = Integer.valueOf(comArr[4])-1;
-            
-            if(r1 == r2 && c1 == c2) return;
-            if(merge[r1][c1] == merge[r2][c2]) return;
-            
-            int mergeIdx = merge[r1][c1];
-            int targetIdx = merge[r2][c2];
-            
-            if(!excel[r1][c1].equals(EMPTY)){
-                String mergeValue = excel[r1][c1];
-                List<int[]> tmpList = new ArrayList<>();
-                for(int[] spot : indexList[targetIdx]){
-                    excel[spot[0]][spot[1]] = mergeValue;
-                    merge[spot[0]][spot[1]] = mergeIdx;
-                    tmpList.add(spot);
                 }
-                indexList[mergeIdx].addAll(tmpList);
-                indexList[targetIdx].clear();
-            } else{
-                String mergeValue = excel[r2][c2];
-                for(int[] spot : indexList[mergeIdx]){
-                    excel[spot[0]][spot[1]] = mergeValue;
+            }
+        } else{
+            String target = command[1];
+            String value = command[2];
+            for(int i = 0; i<50; i++){
+                for(int j = 0; j<50; j++){
+                    if(EXCEL[i][j][0].equals(target)){
+                        EXCEL[i][j][0] = value;
+                    }
                 }
-                
-                List<int[]> tmpList = new ArrayList<>();
-                for(int[] spot : indexList[targetIdx]){
-                    merge[spot[0]][spot[1]] = mergeIdx;
-                    tmpList.add(spot);
-                }
-                indexList[mergeIdx].addAll(tmpList);
-                indexList[targetIdx].clear();
             }
-        } else if(comArr[0].equals("UNMERGE")){
-            int r = Integer.valueOf(comArr[1])-1;
-            int c = Integer.valueOf(comArr[2])-1;
             
-            String unmergeValue = excel[r][c];
-            int unmergeIdx = merge[r][c];
-            
-            List<int[]> tmpList = new ArrayList<>();
-            for(int[] spot : indexList[unmergeIdx]){
-                excel[spot[0]][spot[1]] = EMPTY;
-                merge[spot[0]][spot[1]] = spot[0]*50+spot[1];
-                tmpList.add(spot);
-            }
-            excel[r][c] = unmergeValue;
-            indexList[unmergeIdx].clear();
-            for(int[] spot : tmpList){
-                int mergeIdx = merge[spot[0]][spot[1]];
-                indexList[mergeIdx].add(spot);
-            }
         }
+        
+        
     }
-    
 }
